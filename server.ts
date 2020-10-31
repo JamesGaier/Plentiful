@@ -15,8 +15,6 @@ app.use(express.json());
 mongoose.connect(process.env.MONGOURI ?? '', { useUnifiedTopology: true, useNewUrlParser: true }, err => {
     if(err) throw err;
 
-    // const user = new UserM()
-    const user = User.
     console.log('database connected');
 });
 
