@@ -1,18 +1,33 @@
 import mongoose, { Document, Model, Schema, Types } from 'mongoose';
 import { UserI } from './user';
 
-export interface DonationI extends Document {
+export interface DonationI {
     amount: number,
-    to: UserI // the id of the person donated to
+    items?: Array<string>,
+    to: UserI
+    by: UserI
 }
-interface DonationM extends Model<DonationI> {
+
+export interface DonationDoc extends DonationI, Document {}
+
+interface DonationM extends Model<DonationDoc> {
+    build(attr: DonationI): DonationDoc
 }
 
 const donationSchema = new mongoose.Schema({
     amount: {
+        type: Number,
         required: true
     },
-    to: {type: Schema.Types.ObjectId, ref: 'User'}
+    items: [String],
+    to: {type: Schema.Types.ObjectId, ref: 'User'},
+    by: {type: Schema.Types.ObjectId, ref: 'User'}
 });
 
-export default mongoose.model<DonationI, DonationM>('Donation', donationSchema);
+donationSchema.statics.build = (attr: DonationI) => {
+    return new Donation(attr);
+};
+
+const Donation = mongoose.model<DonationDoc, DonationM>('Donation', donationSchema);
+
+export default Donation;

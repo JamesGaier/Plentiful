@@ -1,22 +1,30 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 import { UserI } from './user';
 
-export interface PostI extends Document {
+export interface PostI {
     by: UserI,
-    body: String,
-    backers: Array<UserI>
+    body: string,
+    backers?: Array<UserI>
 }
-
-interface PostM extends Model<PostI> {
+export interface PostDoc extends PostI, Document {
+}
+interface PostM extends Model<PostDoc> {
+    build(attr: PostI): PostDoc
 }
 
 const postSchema = new mongoose.Schema({
     by: {type: Schema.Types.ObjectId, ref: 'User'},
     body: {
+        type: String,
         required: true
     },
     backers: [{type: Schema.Types.ObjectId, ref: 'User'}]
 });
-const Post =  mongoose.model<PostI, PostM>('Post', postSchema);
 
-export { Post };
+postSchema.statics.build = (attr: PostI) => {
+    return new Post(attr);
+};
+
+const Post =  mongoose.model<PostDoc, PostM>('Post', postSchema);
+
+export default Post;
